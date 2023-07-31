@@ -7,6 +7,9 @@ using System.Web.UI.WebControls;
 using System.Data.Entity;
 using System.Runtime.InteropServices;
 using System.Web.Providers.Entities;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 public partial class _Default : System.Web.UI.Page
 {
@@ -19,8 +22,8 @@ public partial class _Default : System.Web.UI.Page
     }
     private void connection()
     {
-        //string sqlconn = (@"server=.\SQLEXPRESS; Persist Security Info=true; Integrated Security=true;  Initial Catalog=Excel;");
-        string sqlconn = (@"server = localhost; user = some_user; database = some_db; password = some_pass; charset = utf8;  Initial Catalog=Excel;");
+        string sqlconn = (@"server=.\SQLEXPRESS; Persist Security Info=true; Integrated Security=true;  Initial Catalog=Excel;");
+       //string sqlconn = "server = localhost; user = some_user; database = some_db; password = some_pass; Initial Catalog=Excel;";
         con = new SqlConnection(sqlconn);
         //Коннект к базе данных
     }
@@ -40,7 +43,7 @@ public partial class _Default : System.Web.UI.Page
         tblcsv.Columns.Add("Corps");
         tblcsv.Columns.Add("YearBuilding");
         //Положение файла  
-        string CSVFilePath = Path.GetFullPath(@"C:\Users\123\Desktop\ric_House.csv");
+        string CSVFilePath = Path.GetFullPath(@"C:\Users\123\Desktop\Какой то дом.csv");
         //string CSVFilePath = Path.GetFullPath(FileUpload1.PostedFile.FileName);
         //Прочитать весь текст  
         string ReadCSV = File.ReadAllText(CSVFilePath);
@@ -85,4 +88,149 @@ public partial class _Default : System.Web.UI.Page
         objbulk.WriteToServer(csvdt);
         con.Close();
     }
+
+
+
+
+
+    // Загрузка краткой базы данных домов
+    protected void Button2_Click(object sender, EventArgs e)
+    {
+        RptCourse.DataSource = GetCourses();
+        RptCourse.DataBind();
+    }
+
+    private List<Course> GetCourses()
+    {
+        var dataTable = new DataTable();
+
+        using (var sqlConnection = new SqlConnection(@"server=.\SQLEXPRESS;Initial Catalog=Excel;Integrated Security=True"))
+        {
+            sqlConnection.Open();
+
+            using (var sqlCommand = new SqlCommand("select * from Users", sqlConnection))
+            {
+                using (var sqlReader = sqlCommand.ExecuteReader())
+                {
+                    dataTable.Load(sqlReader);
+                }
+            }
+        }
+
+        var courses = new List<Course>();
+
+        foreach (DataRow dataRow in dataTable.Rows)
+        {
+            var course = new Course()
+            {
+                City = (string)dataRow["City"],
+                House = (string)dataRow["House"]
+            };
+            courses.Add(course);
+        }
+
+        return courses;
+    }
+
+
+    protected void TextBox1_TextChanged(object sender, EventArgs e)
+    {
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    protected void Button3_Click(object sender, EventArgs e)
+    {
+        Response.Redirect("~/Page2.aspx");
+
+
+
+        //DataTable infobox = new DataTable();
+
+        //infobox.Columns.Add("id");
+        //infobox.Columns.Add("DateCreate");
+        //infobox.Columns.Add("DateEditing");
+        //infobox.Columns.Add("City");
+        //infobox.Columns.Add("AdmDistrict");
+        //infobox.Columns.Add("District");
+        //infobox.Columns.Add("Street");
+        //infobox.Columns.Add("House");
+        //infobox.Columns.Add("Corps");
+        //infobox.Columns.Add("YearBuilding");
+
+
+
+
+        //foreach (string csvRow in text.Split('\n'))
+        //{
+        //    if (!string.IsNullOrEmpty(csvRow))
+        //    {
+        //        //добавление в колонки  
+        //        infobox.Rows.Add();
+        //        int count = 0;
+        //        foreach (string FileRec in csvRow.Split(';'))
+        //        {
+        //            if (count == 0)
+        //            {
+        //                string id = System.Guid.NewGuid().ToString();
+        //                //string id = 
+        //                infobox.Rows[infobox.Rows.Count - 1][count] = id;
+        //                count++;
+        //            }
+
+        //            if (count == 1) 
+        //            { 
+
+
+        //            }
+
+        //            {
+        //                infobox.Rows[infobox.Rows.Count - 1][count] = FileRec;
+        //                count++;
+        //            }
+        //        }
+        //    }
+        //}
+
+        //InsertCSVRecords(infobox);
+    }
+
+
+
+
+
 }
+
+
+
+
+
+
+public class Course
+{
+    public string City { get; set; }
+    public string House { get; set; }
+
+}
+
+
+
+
+
+
+
+
